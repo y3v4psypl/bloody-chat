@@ -1,0 +1,55 @@
+@use "../Layout/Layout.module";
+
+.header {
+  grid-area: header;
+
+  background-color: Layout.$main-color;
+
+  display: inline-flex;
+
+  font-weight: bold;
+
+  align-items: center;
+  flex-wrap: wrap;
+
+  .logo {
+    display: inline;
+    margin-left: 1.5em;
+    font-size: 30px;
+    padding-top: 15px;
+    margin-right: 0.2em;
+  }
+
+  .heading {
+
+    h1 {
+      font-size: 30px;
+      font-family: Inconsolata, sans-serif;
+    }
+
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .link :hover {
+    color: Layout.$accent-color
+  }
+
+  .navbar {
+    margin-left: auto;
+
+    li {
+      display: inline;
+      padding-right: 2em;
+    }
+
+  }
+
+}
+
+
+
+

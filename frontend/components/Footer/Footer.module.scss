@@ -1,0 +1,6 @@
+@use "../Layout/Layout.module";
+
+.footer {
+  grid-area: footer;
+  background-color: Layout.$main-color;
+}
