@@ -14,6 +14,7 @@ export const Header = () => {
 
             <nav className={styles.navbar}>
                 <ul>
+                    <a className={styles.link} href="/chats"><li>Chats</li></a>
                     <a className={styles.link} href="/signup"><li>Sign Up</li></a>
                     <a className={styles.link} href="/about"><li>About</li></a>
                 </ul>
