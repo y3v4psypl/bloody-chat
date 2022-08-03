@@ -1,15 +1,16 @@
 import http from 'http';
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 
-const app: Express = express();
+const app: express.Express = express();
+
 app.use(express.json())
    .use(cors());
 
 const comments: Comment[] = [];
 
-app.post('/comment', (req: Request, res: Response) => {
+app.post('/comment', (req: express.Request, res: express.Response) => {
     console.log("Request is started", req.body);
 
     const comment = {
@@ -18,12 +19,13 @@ app.post('/comment', (req: Request, res: Response) => {
         "username": req.body.username,
         "message": req.body.message
     }
+
     comments.push(comment);
     console.log("Request is sent")
     res.sendStatus(200);
 })
 
-app.get('/comments', (req: Request, res: Response) => {
+app.get('/comments', (req: express.Request, res: express.Response) => {
     res.send(comments);
 })
 
