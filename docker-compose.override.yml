@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build:
+      context: backend
+      target: development
+    ports:
+      - '8000:8000'
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /src
+
+  frontend:
+    build:
+      context: frontend
+      target: development
+    ports:
+      - '3000:3000'
+    volumes:
+      - type: bind
+        source: ./frontend
+        target: /src
+
+  postgres:
+    ports:
+      - target: 5432
+        published: 5432
