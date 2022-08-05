@@ -29,6 +29,10 @@ app.get('/api/comments', (req: express.Request, res: express.Response) => {
     res.send(comments);
 })
 
+app.get('*', (req: express.Request, res: express.Response) => {
+    res.redirect('/not-found');
+});
+
 http.createServer(app).listen(8000, () => console.log('Server is running at http://localhost:8000'));
 
 interface Comment {
