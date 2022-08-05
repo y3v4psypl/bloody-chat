@@ -10,7 +10,7 @@ app.use(express.json())
 
 const comments: Comment[] = [];
 
-app.post('/comment', (req: express.Request, res: express.Response) => {
+app.post('/api/comment', (req: express.Request, res: express.Response) => {
     console.log("Request is started", req.body);
 
     const comment = {
@@ -25,11 +25,11 @@ app.post('/comment', (req: express.Request, res: express.Response) => {
     res.sendStatus(200);
 })
 
-app.get('/comments', (req: express.Request, res: express.Response) => {
+app.get('/api/comments', (req: express.Request, res: express.Response) => {
     res.send(comments);
 })
 
-http.createServer(app).listen(8000);
+http.createServer(app).listen(8000, () => console.log('Server is running at http://localhost:8000'));
 
 interface Comment {
     id: string,
