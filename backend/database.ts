@@ -5,16 +5,16 @@ export const comments: IComment[] = [];
 
 export const users: IUSer[] = [
     {
-        username: 'Eva',
+        username: 'adminka',
         createdAt: new Date().toISOString(),
-        password: '1234',
+        password: 'Adminka1!',
         id: uuidv4()
     },
 
     {
         username: 'Alisa',
         createdAt: new Date().toISOString(),
-        password: '123',
+        password: 'Alisa1234!',
         id: uuidv4()
     }
 ];
