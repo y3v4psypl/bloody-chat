@@ -6,8 +6,6 @@ services:
     build:
       context: backend
       target: development
-    ports:
-      - '8000:8000'
     volumes:
       - type: bind
         source: ./backend
@@ -17,8 +15,6 @@ services:
     build:
       context: frontend
       target: development
-    ports:
-      - '3000:3000'
     volumes:
       - type: bind
         source: ./frontend
