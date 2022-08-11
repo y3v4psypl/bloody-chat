@@ -1,3 +1,4 @@
+@use '../components/Layout/Layout.module';
 $fonts: 'Poppins', sans-serif;
 
 /* http://meyerweb.com/eric/tools/css/reset/
@@ -60,4 +61,5 @@ body {
   font-family: $fonts;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: Layout.$bg-color;
 }
