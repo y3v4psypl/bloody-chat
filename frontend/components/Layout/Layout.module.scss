@@ -5,7 +5,6 @@ $accent-color: #e40066;
 $text-color: #f0f0f0;
 
 .wrapper {
-  background-color: $bg-color;
   color: $text-color;
 
   display: grid;
@@ -22,3 +21,11 @@ $text-color: #f0f0f0;
   height: 100vh;
 
 }
+
+//@media only screen and (min-width: 768px) {
+//  width: 75%;
+//  .wrapper {
+//    display: grid;
+//  }
+//
+//}
