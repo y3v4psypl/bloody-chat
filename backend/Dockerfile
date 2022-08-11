@@ -6,7 +6,7 @@ EXPOSE 8000
 
 FROM base as production
 ENV NODE_ENV=production
-RUN npm install -g ts-node && npm ci
+RUN npm install -g ts-node && npm install
 COPY . /src
 CMD ["ts-node", "server.ts"]
 
