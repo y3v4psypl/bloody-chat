@@ -1,14 +1,22 @@
 import http from 'http';
-import express from 'express';
+import express, {json} from 'express';
 import cookies from 'cookie-parser';
+import * as WebSocket from 'ws';
 import {v4 as uuidv4} from 'uuid';
 import cors from 'cors';
 import {auth} from './middlewares/auth';
 import {comments, sessionTokens, users} from './database';
-import {ISignUpResult, IUSer} from './types';
+import {ISignUpResult, IUSer, IRequestContext} from './types';
 
+interface ExtWebSocket extends WebSocket {
+    isAlive: boolean;
+};
 
 const app: express.Express = express();
+
+const server: http.Server = http.createServer(app);
+
+const wss = new WebSocket.Server({ server, path: '/wss' });
 
 //
 // Middlewares:
@@ -20,6 +28,38 @@ app.use(express.json())
     // Authorisation not required:
     .use(auth(['/api/sign-in', '/api/sign-up', '/api/comments']));
 
+wss.on('connection', (ws: ExtWebSocket) => {
+
+    ws.isAlive = true;
+
+    ws.on('pong', () => {
+        ws.isAlive = true;
+    });
+
+    ws.onmessage = (message) => {
+        console.log('received: %s', message.data);
+
+        wss.clients
+            .forEach(client => {
+                client.send(message.data);
+            });
+    }
+
+    // ws.send('Hi there, I am a websocket server');
+});
+
+setInterval(() => {
+    wss.clients.forEach((ws) => {
+        const extws = ws as ExtWebSocket;
+        if (!extws.isAlive) return ws.terminate();
+
+        extws.isAlive = false;
+        ws.ping();
+    });
+}, 10000);
+
+
+
 //
 // Post new comment:
 //
@@ -30,15 +70,13 @@ app.post(
         req: express.Request,
         res: express.Response
     ): void => {
-
+        const reqctx = req as IRequestContext
         console.log('Request is started:', req.body);
 
-        const userID = sessionTokens.find(token => token.token === req.cookies.sessionToken);
+        console.log(reqctx.context.session)
 
         const comment = {
-            // !!
-            // @ts-ignore
-            'userID': userID.userID,
+            'userID': reqctx.context.session.userID,
             'commentID': uuidv4(),
             'createdAt': new Date().toISOString(),
             'username': req.body.username,
@@ -46,6 +84,9 @@ app.post(
         }
 
         comments.push(comment);
+        // wss.clients.forEach(client => client.send(comment));
+
+        wss.clients.forEach(client => client.send(JSON.stringify(comment)));
 
         console.log('Request is sent');
 
@@ -90,7 +131,8 @@ app.post(
 
         if (sessionTokens.find(token => token.token === req.cookies.sessionToken)) {
 
-            res.cookie('sessionToken', req.cookies.sessionToken).sendStatus(200)
+            // res.cookie('sessionToken', req.cookies.sessionToken).sendStatus(200)
+            res.sendStatus(200);
 
         } else {
 
@@ -105,7 +147,7 @@ app.post(
 
             } else {
 
-                res.sendStatus(400);
+                res.sendStatus(422);
 
             }
         }
@@ -140,6 +182,9 @@ app.post(
         if (signup.username === '') {
             signUpResult.result = false;
             signUpResult.errors?.username?.push('Field is empty')
+        } else if (signup.username.length < 5) {
+            signUpResult.result = false;
+            signUpResult.errors?.username?.push('Too short')
         }
 
         if (signup.password === '') {
@@ -193,7 +238,7 @@ app.post(
     })
 
 //
-// Get all users (must be removed later)
+// Get all users
 //
 
 app.get(
@@ -222,7 +267,7 @@ app.get(
 
     });
 
-http.createServer(app).listen(8000, () => console.log('Server is running at http://localhost:8000'));
+server.listen(8000, () => console.log('Server is running at http://localhost:8000'));
 
 
 // Валидация данных на сервере, если что-то не так отправить код с ошибкой

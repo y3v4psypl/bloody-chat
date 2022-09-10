@@ -39,6 +39,7 @@
       .link{
         color: #E40066FF
       }
+
     }
 
     .hr {
@@ -50,13 +51,6 @@
     display: flex;
     flex-direction: column;
 
-    .correctInputData {
-      border-color: lawngreen;
-    }
-
-    .incorrectInputData {
-      border-color: red;
-    }
   }
 
 

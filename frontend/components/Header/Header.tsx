@@ -22,9 +22,9 @@ export const Header = () => {
                             <a className={styles.link} tabIndex={2}>Chats</a>
                         {/*</li>*/}
                     </Link>
-                    <Link className={styles.link} href="/signup">
+                    <Link className={styles.link} href="/sign-in">
                         {/*<li className={styles.link}>*/}
-                            <a className={styles.link} tabIndex={3}>Sign Up</a>
+                            <a className={styles.link} tabIndex={3}>Sign In</a>
                         {/*</li>*/}
                     </Link>
                     <Link href="/about">

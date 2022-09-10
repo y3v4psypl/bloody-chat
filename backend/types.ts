@@ -1,3 +1,5 @@
+import express from 'express';
+
 export interface IComment {
     userID: string,
     commentID: string,
@@ -24,4 +26,10 @@ export interface ISignUpResult {
         username: string[] | null,
         password: string[] | null
     }
+}
+
+export interface IRequestContext extends express.Request {
+    context: {
+        session: ISession,
+    },
 }

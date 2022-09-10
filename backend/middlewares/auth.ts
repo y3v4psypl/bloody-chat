@@ -1,12 +1,25 @@
 import express from 'express';
-import { sessionTokens as tokens} from '../database';
+import {sessionTokens} from '../database';
+import {IRequestContext} from '../types'
+
 
 export const auth = (except: string[]) => (req: express.Request, res: express.Response, next: express.NextFunction) => {
+
     if (except.includes(req.baseUrl + req.path)) {
         return next();
     }
-    if (tokens.find(s => s.token === req.cookies.sessionToken)) {
+
+    const session = sessionTokens.find(token => token.token === req.cookies.sessionToken);
+
+    if (!session) {
+        res.sendStatus(403);
+        return;
+    } else {
+        const requestContext = req as IRequestContext
+        requestContext.context = {
+            session,
+        };
         return next();
     }
-    res.sendStatus(401);
+
 }

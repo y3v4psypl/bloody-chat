@@ -90,19 +90,22 @@
       }
     }
 
+    button:active {
+      border-color: Layout.$accent-color;
+    }
+
   }
 
   .chatBox {
     grid-area: chat;
     margin-top: 10px;
     width: 90%;
+    overflow: scroll;
 
     border: 3px solid Layout.$main-color;
     border-radius: 10px;
 
     justify-self: center;
-
-    display: flex;
 
     .messageBox {
 
