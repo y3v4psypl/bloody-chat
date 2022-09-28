@@ -7,9 +7,9 @@ export const useAuth = () => {
     if (typeof window === 'undefined') {
         return;
     }
-    const isSignedIn = localStorage.getItem("isSignedIn");
+    const isSignedIn = localStorage.getItem('isSignedIn');
 
-    if (!isSignedIn) {
+    if (isSignedIn === 'false') {
         router.push('/sign-in').then();
     }
 }

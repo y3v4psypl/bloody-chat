@@ -1,23 +1,22 @@
 import express from 'express';
 
 export interface IComment {
-    userID: string,
+    userId: string,
     commentID: string,
     createdAt: string,
-    username: string,
     message: string,
 }
 
 export interface IUSer {
     username: string,
     password: string,
-    createdAt: string,
+    salt: string,
     id: string,
 }
 
 export interface ISession {
     token: string,
-    userID: string,
+    userId: string,
 }
 
 export interface ISignUpResult {

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import styles from './Chat.module.scss';
 import { BiSend } from 'react-icons/bi';
-import { useAuth } from '../../utils/auth';
+import {AppContext} from '../../context/app.context';
+import {useRouter} from 'next/router';
 
 export const Chat = (): JSX.Element => {
     const [username, setUsername] = React.useState<string>('');
@@ -9,8 +10,10 @@ export const Chat = (): JSX.Element => {
     const [messages, setMessages] = React.useState<IComment[]>([]);
     const [historyIsLoaded, setHistoryIsLoaded] = React.useState<boolean>(false);
     const connectionRef = React.useRef<WebSocket>();
+    const context = React.useContext(AppContext);
+    const router = useRouter();
 
-    useAuth();
+    if (!context.isSignedIn) {router.push('/sign-in').then()}
 
     React.useEffect((): void => {
         const response = fetch(`/api/comments`, {
@@ -66,15 +69,18 @@ export const Chat = (): JSX.Element => {
             headers: {
                 'Content-Type': 'application/json'
             },
-
         });
+
+        const responseData = await response.json();
 
         return setMessage("");
     }
 
     return (<div className={styles.chatWrapper}>
         <div className={styles.chatBox}>
-            {messages.map(m => <div key={m.commentID}>{m.username}: {m.message}</div>)}
+            {messages.map(m => <div className={m.userID === localStorage.getItem('userID')
+                ? styles.messageBoxRight
+                : styles.messageBoxLeft} key={m.commentID}>{m.username}: {m.message}</div>)}
         </div>
 
         <div className={styles.chatInput}>

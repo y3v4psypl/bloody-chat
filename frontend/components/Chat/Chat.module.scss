@@ -1,4 +1,4 @@
-@use '../Layout/Layout.module';
+@use '../../styles/Layout.module';
 
 .chatWrapper {
   grid-area: body;
@@ -101,14 +101,40 @@
     margin-top: 10px;
     width: 90%;
     overflow: scroll;
+    color: black;
 
     border: 3px solid Layout.$main-color;
     border-radius: 10px;
 
     justify-self: center;
 
-    .messageBox {
+    .messageBoxLeft {
+      position: relative;
+      margin-left: 20px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #A8DDFD;
+      width: 200px;
+      height: 50px;
+      text-align: left;
+      font: 400 .9em 'Poppins', sans-serif;
+      border: 1px solid #97C6E3;
+      border-radius: 10px;
+    }
 
+    .messageBoxRight {
+      position: relative;
+      margin-bottom: 10px;
+      margin-left: calc(100% - 240px);
+      padding: 10px;
+      background-color: #f8e896;
+      width: 200px;
+      height: 50px;
+      text-align: left;
+      font: 400 .9em 'Open Sans', sans-serif;
+      border: 1px solid #dfd087;
+      border-radius: 10px;
     }
 
   }

@@ -1,11 +1,10 @@
 import * as React from "react";
 import Chat from "../components/Chat/Chat";
-import {withLayout} from "../components/Layout/Layout";
 
-const Chats = () => {
+const ChatPage = () => {
     return (
         <Chat />
     );
 }
 
-export default withLayout(Chats);
+export default ChatPage;

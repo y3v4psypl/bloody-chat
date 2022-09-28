@@ -2,22 +2,20 @@ import * as React from 'react';
 import styles from './SignIn.module.scss';
 import { BiShow, BiHide } from 'react-icons/bi';
 import Link from 'next/link';
+import {AppContext} from '../../context/app.context';
+import {useRouter} from 'next/router';
 
 export const SignIn = () => {
-    const [isVisible, setIsVisible] = React.useState(false);
-    const [username, setUsername] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    const [isVisible, setIsVisible] = React.useState<boolean>(false);
+    const [username, setUsername] = React.useState<string>('');
+    const [password, setPassword] = React.useState<string>('');
+    const context = React.useContext(AppContext);
+    const router = useRouter();
+    if (context.isSignedIn) {router.push('/chat')}
 
-    const visibilityHandler = () => {
-        setIsVisible(!isVisible);
-    }
+    const visibilityHandler = (): void => setIsVisible(!isVisible);
 
-    const visibilityIcon = (): JSX.Element => {
-        if (isVisible) {
-            return <BiHide />
-        }
-        return <BiShow />
-    }
+    const visibilityIcon = (): JSX.Element => isVisible ? <BiHide /> : <BiShow />;
 
     const checkUserData = (): void | boolean => {
         if (username.trim() === '' || password.trim() === '') {
@@ -33,13 +31,13 @@ export const SignIn = () => {
         return true;
     }
 
-    const user = {
-        username,
-        password
-    }
-
 
     const postUserData = async () => {
+        const user = {
+            username,
+            password
+        }
+
         if (checkUserData()) {
             const response = await fetch(`/api/sign-in`, {
                 method: 'POST',
@@ -51,11 +49,13 @@ export const SignIn = () => {
             });
 
             if (response.ok) {
-                localStorage.setItem("isSignedIn", "true");
+                const responseData = await response.json();
+                localStorage.setItem("isSignedIn", "true")
+                localStorage.setItem("userId", `${responseData.userId}`);
+                context.setIsSignedIn(true);
             }
         }
     }
-
 
     return (
         <main className={styles.main}>

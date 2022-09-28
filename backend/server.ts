@@ -1,5 +1,5 @@
 import http from 'http';
-import express, {json} from 'express';
+import express from 'express';
 import cookies from 'cookie-parser';
 import * as WebSocket from 'ws';
 import {v4 as uuidv4} from 'uuid';
@@ -7,14 +7,20 @@ import cors from 'cors';
 import {auth} from './middlewares/auth';
 import {comments, sessionTokens, users} from './database';
 import {ISignUpResult, IUSer, IRequestContext} from './types';
-
-interface ExtWebSocket extends WebSocket {
-    isAlive: boolean;
-};
+import {Pool} from 'pg';
+import * as crypto from 'crypto';
 
 const app: express.Express = express();
 
 const server: http.Server = http.createServer(app);
+
+const pool = new Pool({
+    host: process.env.POSTGRES_HOST,
+    port: Number(process.env.POSTGRES_PORT),
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DATABASE,
+});
 
 const wss = new WebSocket.Server({ server, path: '/wss' });
 
@@ -26,7 +32,18 @@ app.use(express.json())
     .use(cors())
     .use(cookies())
     // Authorisation not required:
-    .use(auth(['/api/sign-in', '/api/sign-up', '/api/comments']));
+    .use(auth(['/api/sign-in', '/api/sign-up', '/api/comments', '/api/sign-out']));
+
+const hashPassword = (password: string): {salt: string, hashedPassword: string} => {
+    const passwordSalt: string = uuidv4();
+    const sha256Hasher: crypto.Hmac = crypto.createHmac('sha256', passwordSalt);
+    const hashedPassword: string = sha256Hasher.update(password).digest('hex');
+
+    return {
+        salt: passwordSalt,
+        hashedPassword: hashedPassword
+    }
+}
 
 wss.on('connection', (ws: ExtWebSocket) => {
 
@@ -76,7 +93,7 @@ app.post(
         console.log(reqctx.context.session)
 
         const comment = {
-            'userID': reqctx.context.session.userID,
+            'userId': reqctx.context.session.userId,
             'commentID': uuidv4(),
             'createdAt': new Date().toISOString(),
             'username': req.body.username,
@@ -129,29 +146,20 @@ app.post(
 
         const user = users.find(u => u.username === signIn.username.trim() && u.password === signIn.password.trim());
 
-        if (sessionTokens.find(token => token.token === req.cookies.sessionToken)) {
-
-            // res.cookie('sessionToken', req.cookies.sessionToken).sendStatus(200)
-            res.sendStatus(200);
+        if (user) {
+            sessionTokens.push(
+                {
+                    token: sessionToken,
+                    userId: user.id
+                }
+            )
+            res.cookie('sessionToken', sessionToken).send({"userId": user.id});
 
         } else {
 
-            if (user) {
-                sessionTokens.push(
-                    {
-                        token: sessionToken,
-                        userID: user.id
-                    }
-                )
-                res.cookie('sessionToken', sessionToken).sendStatus(200);
+            res.sendStatus(422);
 
-            } else {
-
-                res.sendStatus(422);
-
-            }
         }
-
 
     })
 
@@ -202,17 +210,16 @@ app.post(
         //
 
         if (!signup.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/g)) {
-
             signUpResult.result = false;
-
         }
 
         if (signUpResult.result) {
+            const password = hashPassword(signup.password);
 
             const newUser: IUSer = {
                 username: signup.username,
-                password: signup.password,
-                createdAt: new Date().toISOString(),
+                password: password.hashedPassword,
+                salt: password.salt,
                 id: uuidv4(),
             }
 
@@ -221,7 +228,7 @@ app.post(
             sessionTokens.push(
                 {
                     token: sessionToken,
-                    userID: newUser.id
+                    userId: newUser.id
                 }
             )
 
@@ -236,6 +243,18 @@ app.post(
         }
 
     })
+
+app.post('/api/sign-out', (req: express.Request, res: express.Response) => {
+    console.log(req.body)
+    const {userId} = req.body;
+
+    const sessionIndex: number = sessionTokens.findIndex(token => token.userId === userId);
+
+    const removedSession = sessionTokens.splice(sessionIndex - 1, sessionIndex);
+
+    res.clearCookie("sessionToken");
+    res.send(sessionIndex !== -1 ? {"status": "ok"} : {"status": "error", "error": "Session doesn't exist"});
+});
 
 //
 // Get all users
@@ -272,3 +291,7 @@ server.listen(8000, () => console.log('Server is running at http://localhost:800
 
 // Валидация данных на сервере, если что-то не так отправить код с ошибкой
 // Валидация данных на клиенте (Chakra)
+
+interface ExtWebSocket extends WebSocket {
+    isAlive: boolean;
+}

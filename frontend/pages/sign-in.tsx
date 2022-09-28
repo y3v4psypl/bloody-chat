@@ -1,12 +1,12 @@
 import * as React from "react";
 import { SignIn } from "../components/SignIn/SignIn";
-import { withLayout } from "../components/Layout/Layout";
 
-const Signup = () => {
+
+const Signin = (props: any) => {
     return (
-        <SignIn />
+        <SignIn {...props}/>
     );
 
 }
 
-export default withLayout(Signup);
+export default Signin;

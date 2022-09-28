@@ -1,6 +1,5 @@
 import * as React from "react";
 import { SignUp } from "../components/SignUp/SignUp";
-import { withLayout } from "../components/Layout/Layout";
 
 const Signup = () => {
     return (
@@ -9,4 +8,4 @@ const Signup = () => {
 
 }
 
-export default withLayout(Signup);
+export default Signup;
