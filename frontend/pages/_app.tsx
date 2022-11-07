@@ -20,7 +20,7 @@ const Layout = ({children}: LayoutProps): JSX.Element => {
 };
 
 const App = ({Component, pageProps, router}: AppProps): JSX.Element => {
-const context = React.useContext(AppContext);
+
     return <>
         <Head>
             <title>Bloody Chat</title>
@@ -30,8 +30,8 @@ const context = React.useContext(AppContext);
             <link rel="preconnect" href="https://fonts.googleapis.com"/>
             <link rel="preconnect" href="https://fonts.gstatic.com"/>
         </Head>
-        <AppContextProvider isSignedIn={context.isSignedIn} setIsSignedIn={context.setIsSignedIn}>
-            <Layout isSignedIn={context.isSignedIn} setIsSignedIn={context.setIsSignedIn}>
+        <AppContextProvider >
+            <Layout>
                     <Component {...pageProps}/>
             </Layout>
         </AppContextProvider>
@@ -42,6 +42,4 @@ export default App;
 
 interface LayoutProps {
     children: React.ReactNode;
-    isSignedIn: boolean;
-    setIsSignedIn: (v: boolean) => void;
 }

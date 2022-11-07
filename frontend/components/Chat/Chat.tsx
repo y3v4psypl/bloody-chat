@@ -5,7 +5,6 @@ import {AppContext} from '../../context/app.context';
 import {useRouter} from 'next/router';
 
 export const Chat = (): JSX.Element => {
-    const [username, setUsername] = React.useState<string>('');
     const [message, setMessage] = React.useState<string>('');
     const [messages, setMessages] = React.useState<IComment[]>([]);
     const [historyIsLoaded, setHistoryIsLoaded] = React.useState<boolean>(false);
@@ -13,7 +12,10 @@ export const Chat = (): JSX.Element => {
     const context = React.useContext(AppContext);
     const router = useRouter();
 
-    if (!context.isSignedIn) {router.push('/sign-in').then()}
+    React.useEffect(() => {
+        if (!context.isSignedIn) {router.push('/sign-in')}
+    })
+
 
     React.useEffect((): void => {
         const response = fetch(`/api/comments`, {
@@ -53,43 +55,55 @@ export const Chat = (): JSX.Element => {
 
     const postComment = async (): Promise<void> => {
 
-        const Comment = {
-            username,
-            message,
-        };
-
-        if (Comment.username.trim() === '' || Comment.message.trim() === '') {
-            return alert('Please enter a message or a username');
+        const comment = {
+            text: message,
+            user_id: Number(localStorage.getItem('user_id')),
+            username: localStorage.getItem('username')
         }
 
-        const response = await fetch(`/api/comment`, {
-            method: 'POST',
-            body: JSON.stringify(Comment),
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        });
+        console.log(comment);
 
-        const responseData = await response.json();
+        if (message.trim() === '') {
+            return alert('Please enter a message');
+        }
+        try {
+            const response = await fetch(`/api/comment`, {
+                method: 'POST',
+                body: JSON.stringify(comment),
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (response.ok) {
+                setMessage("");
+            } else {
+                alert("Something went wrong")
+            }
+        } catch (e) {
+            alert("Something went wrong")
+        }
 
-        return setMessage("");
     }
-
+    //{m.users.username}: {m.text}
+    console.log(message)
     return (<div className={styles.chatWrapper}>
         <div className={styles.chatBox}>
-            {messages.map(m => <div className={m.userID === localStorage.getItem('userID')
+            {messages.map(m =>
+                <div className={m.user_id === Number(localStorage.getItem('user_id'))
                 ? styles.messageBoxRight
-                : styles.messageBoxLeft} key={m.commentID}>{m.username}: {m.message}</div>)}
+                : styles.messageBoxLeft} key={m.id}>
+                    {m.user_id === Number(localStorage.getItem('user_id'))
+                    ? m.text
+                    : `${m.users.username}: ${m.text}`}
+                </div>
+            )}
         </div>
 
         <div className={styles.chatInput}>
             <div>
                 <div className={styles.inputMessage}>
                     <textarea id='comment' name='comment' placeholder='Enter your message' value={message} onChange={event => setMessage(event.target.value)}/>
-                </div>
-                <div className={styles.inputUsername}>
-                    <input type='text' id='username' name='username' placeholder='Enter your username' value={username} onChange={event => setUsername(event.target.value)}/>
                 </div>
             </div>
             <div className={styles.inputButton}>
@@ -105,9 +119,11 @@ export const Chat = (): JSX.Element => {
 export default Chat;
 
 interface IComment {
-    userID: string,
-    commentID: string,
-    createdAt: string,
-    username: string,
-    message: string,
+    id: number,
+    user_id: number,
+    created_at: string,
+    text: string,
+    users: {
+        username: string
+    }
 }

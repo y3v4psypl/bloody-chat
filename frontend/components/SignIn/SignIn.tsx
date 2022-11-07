@@ -11,7 +11,10 @@ export const SignIn = () => {
     const [password, setPassword] = React.useState<string>('');
     const context = React.useContext(AppContext);
     const router = useRouter();
-    if (context.isSignedIn) {router.push('/chat')}
+
+    React.useEffect(() => {
+        if (context.isSignedIn) {router.push('/chat')}
+    }, [context.isSignedIn])
 
     const visibilityHandler = (): void => setIsVisible(!isVisible);
 
@@ -50,8 +53,9 @@ export const SignIn = () => {
 
             if (response.ok) {
                 const responseData = await response.json();
-                localStorage.setItem("isSignedIn", "true")
-                localStorage.setItem("userId", `${responseData.userId}`);
+                localStorage.setItem("isSignedIn", "true");
+                localStorage.setItem("user_id", responseData.user_id);
+                localStorage.setItem("username", responseData.username)
                 context.setIsSignedIn(true);
             }
         }

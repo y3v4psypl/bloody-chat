@@ -1,7 +1,6 @@
 import express from 'express';
 
 export interface IComment {
-    userId: string,
     commentID: string,
     createdAt: string,
     message: string,
@@ -11,12 +10,11 @@ export interface IUSer {
     username: string,
     password: string,
     salt: string,
-    id: string,
 }
 
 export interface ISession {
     token: string,
-    userId: string,
+    user_id: number,
 }
 
 export interface ISignUpResult {
@@ -29,6 +27,9 @@ export interface ISignUpResult {
 
 export interface IRequestContext extends express.Request {
     context: {
-        session: ISession,
+        user: {
+            id: number,
+            username: string
+        }
     },
 }

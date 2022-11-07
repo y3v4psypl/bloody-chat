@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "linux-musl"]
 }
 
 datasource db {
@@ -8,11 +9,11 @@ datasource db {
 }
 
 model comments {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   user_id    Int
-  text       String    @db.VarChar(500)
-  created_at DateTime? @db.Timestamptz(6)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  text       String   @db.VarChar(500)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model sessions {
@@ -27,8 +28,7 @@ model users {
   username   String     @unique @db.VarChar(50)
   hash       String     @db.VarChar(100)
   salt       String     @db.VarChar(100)
-  created_at DateTime?  @db.Timestamptz(6)
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
   comments   comments[]
   sessions   sessions[]
 }
-
